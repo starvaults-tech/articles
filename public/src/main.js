@@ -1,17 +1,19 @@
-async function getArticle(url) {
-    try {
-        const response = await fetch(url, { mode: 'no-cors'});
-        if (!response.ok) {
-          console.log(response);
-            throw new Error(`Response status: ${response.status}`);
-        }
-        const result = await response.text();
-        console.log(result);
-    } catch (error) {
-        console.error(error.message);
-    }
+async function getArticle(id) {
+    const parser = new DOMParser();
+    const url = `https://hackmd.io/@staryuehtech/cms-${id}`;
+    const res = await fetch('/api/proxy?url=' + encodeURIComponent(url));
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    const text = await res.text();
+    const htmlDoc = parser.parseFromString(text, 'text/html');
+    return htmlDoc.querySelector('#publish-page').innerText;
 }
 
-console.log(
-    getArticle('https://hackmd.io/@staryuehtech/cms-privacy')
-)
+(async () => {
+    try {
+        const md = await getArticle('privacy');
+        const html = marked.parse(md);
+        console.log(html);
+    } catch (err) {
+        console.error(err);
+    }
+})();
