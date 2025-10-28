@@ -2,22 +2,24 @@ const PROFILE_PREFIX = '@staryuehtech/';
 const STORAGE_KEY = 'sv-article-preferences';
 const DEFAULT_THEME = 'light';
 
+const STYLE = JSON.parse(await(await fetch('./style.json')).text());
+
 // TODO: Update slug values to match the real HackMD documents you maintain.
 const ARTICLES = [
     {
         id: 'privacy',
         label: '隱私權政策',
         languages: [
-            { code: 'zh-TW', label: '繁體中文' },
-            { code: 'en', label: 'English' },
+            { code: 'zh_TC', label: '繁體中文' },
+            { code: 'en_US', label: 'English' },
         ],
     },
     {
         id: 'terms',
         label: '服務條款',
         languages: [
-            { code: 'zh-TW', label: '繁體中文' },
-            { code: 'en', label: 'English' },
+            { code: 'zh_TC', label: '繁體中文' },
+            { code: 'en_US', label: 'English' },
         ],
     },
 ];
@@ -87,6 +89,22 @@ function populateLanguageOptions(article, selectedLanguageCode) {
     });
 }
 
+function applyStyle(html) {
+    Object.keys(STYLE).forEach((tag) => {
+        const style = STYLE[tag];
+        html.querySelectorAll(tag).forEach((el) => {
+            Object.entries(style).forEach(([key, value]) => {
+                el.style[key] = value;
+            });
+        });
+    });
+    return html;
+}
+
+function applyBackground(container) {
+    container.style = '';
+}
+
 function applyTheme(theme) {
     const resolved = theme || DEFAULT_THEME;
     document.documentElement.dataset.theme = resolved;
@@ -110,10 +128,17 @@ async function loadArticle(articleId, languageCode) {
     articleContainer.innerHTML = '<p class="placeholder">載入中...</p>';
 
     try {
+        const parser = new DOMParser();
         // const md = await fetchHackmdMarkdown(slug);
         const md = await fetchLocalMarkdown();
         const html = marked.parse(md);
-        articleContainer.innerHTML = html;
+        const dom = parser.parseFromString(html, 'text/html');
+        const styledHTML = applyStyle(dom);
+        const container = document.createElement('div');
+        applyBackground(container);
+        container.innerHTML = styledHTML.body.innerHTML;
+        articleContainer.innerHTML = '';
+        articleContainer.appendChild(container);
     } catch (err) {
         console.error(err);
         articleContainer.innerHTML = `<p class="error">載入失敗：${err.message}</p>`;
