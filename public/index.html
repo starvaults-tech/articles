@@ -4,14 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Star Vaults文章</title>
+    <link rel="stylesheet" href="./src/style.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script type="module" src="./src/main.js"></script>
     <link rel="icon" href="#">
 </head>
 <body>
     <header>
+        <div class="controls">
+            <label>
+                <span>文章</span>
+                <select id="article-select"></select>
+            </label>
+            <label>
+                <span>語言</span>
+                <select id="language-select"></select>
+            </label>
+            <label>
+                <span>主題</span>
+                <select id="theme-select">
+                    <option value="light">淺色</option>
+                    <option value="dark">深色</option>
+                </select>
+            </label>
+        </div>
     </header>
     <main>
+        <article id="article-content"></article>
     </main>
 </body>
 </html>

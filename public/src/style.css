@@ -1,0 +1,100 @@
+:root {
+    color-scheme: light;
+    --bg-color: #f7f8fa;
+    --fg-color: #222;
+    --accent-color: #2d6cdf;
+    --muted-color: #6b7280;
+    --surface-color: #fff;
+    --border-color: #e5e7eb;
+}
+
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg-color: #000;
+    --fg-color: #f3f4f6;
+    --accent-color: #8cb4ff;
+    --muted-color: #9ca3af;
+    --surface-color: rgb(17,17,17);
+    --border-color: #374151;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: var(--bg-color);
+    color: var(--fg-color);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    background-color: var(--surface-color);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0.75rem 1.5rem;
+}
+
+.controls {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.controls label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    color: var(--muted-color);
+}
+
+.controls select {
+    min-width: 10rem;
+    padding: 0.4rem 0.6rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    background-color: var(--surface-color);
+    color: var(--fg-color);
+    font-size: 0.95rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.controls select:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 40%, transparent);
+    outline: none;
+}
+
+main {
+    flex: 1;
+    width: min(960px, 100%);
+    margin: 0 auto;
+    padding: 2rem 1.5rem 3rem;
+    line-height: 1.6;
+}
+
+#article-content {
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+.placeholder,
+.error {
+    margin: 0;
+    color: var(--muted-color);
+    text-align: center;
+}
+
+.error {
+    color: #ef4444;
+}
