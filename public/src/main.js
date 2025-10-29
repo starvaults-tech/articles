@@ -144,10 +144,10 @@ async function loadArticle(articleId, languageCode) {
         copyButton.style.opacity = 0;
         articleBody.innerHTML = '<p class="placeholder">載入中...</p>';
     }
-
+    const slug = `${languageCode}-cms-${articleId}`;
     try {
         const parser = new DOMParser();
-        const md = await fetchHackmdMarkdown(`${articleId}-cms-${languageCode}`);
+        const md = await fetchHackmdMarkdown(slug);
         // const md = await fetchLocalMarkdown();
         const html = marked.parse(md);
         const dom = parser.parseFromString(html, 'text/html');
@@ -160,7 +160,7 @@ async function loadArticle(articleId, languageCode) {
         copyButton.style.opacity = 0;
         console.error(err);
         if (articleBody) {
-            articleBody.innerHTML = `<p class="error">載入失敗：${err.message}</p>`;
+            articleBody.innerHTML = `<p class="error">載入"${slug}"文章失敗：<br>${err.message}</p>`;
         }
     }
 }
