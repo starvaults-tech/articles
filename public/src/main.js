@@ -137,7 +137,7 @@ async function loadArticle(articleId, languageCode) {
         copyButton.style.opacity = 0;
         console.error(err);
         if (articleBody) {
-            articleBody.innerHTML = `<p class="error">載入文章失敗：${err.message}</p><p>請至 Star Vaults Tech 的 Hackmd 新增 <code>${slug}</code> 文章</p>`;
+            articleBody.innerHTML = `<p class="error">載入文章失敗：${err.message}</p><p class="error">請至 Star Vaults Tech 的 Hackmd</p><p class="error">新增 <code>${slug}</code> 文章</p>`;
         }
     }
 }
