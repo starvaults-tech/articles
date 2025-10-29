@@ -21,30 +21,7 @@ const LANGUAGES = {
     'en_US' : 'English',
     'zh_CN' : '简体中文'
 };
-// const ARTICLES = JSON.parse(await fetchHackmdJSON("https://hackmd.io/@staryuehtech/article-tree"));
-const ARTICLES = {
-    "agreement": "用戶協議",
-    "regulatory-authorization": "監管許可"
-};
-// const ARTICLES = [
-//     {
-//         id: 'privacy',
-//         label: '隱私權政策',
-//         languages: [
-//             { code: 'zh_TC', label: '繁體中文' },
-//             { code: 'en_US', label: 'English' },
-//         ],
-//     },
-//     {
-//         id: 'terms',
-//         label: '服務條款',
-//         languages: [
-//             { code: 'zh_TC', label: '繁體中文' },
-//             { code: 'en_US', label: 'English' },
-//         ],
-//     },
-// ];
-
+const ARTICLES = JSON.parse(await fetchHackmdJSON("https://hackmd.io/@staryuehtech/article-tree"));
 const articleSelect = document.getElementById('article-select');
 const languageSelect = document.getElementById('language-select');
 const themeSelect = document.getElementById('theme-select');
@@ -160,7 +137,7 @@ async function loadArticle(articleId, languageCode) {
         copyButton.style.opacity = 0;
         console.error(err);
         if (articleBody) {
-            articleBody.innerHTML = `<p class="error">載入"${slug}"文章失敗：<br>${err.message}</p>`;
+            articleBody.innerHTML = `<p class="error">載入文章失敗：${err.message}</p><p>請至 Star Vaults Tech 的 Hackmd 新增 <code>${slug}</code> 文章</p>`;
         }
     }
 }
