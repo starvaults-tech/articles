@@ -2,32 +2,55 @@ const PROFILE_PREFIX = '@staryuehtech/';
 const STORAGE_KEY = 'sv-article-preferences';
 const DEFAULT_THEME = 'light';
 
-const STYLE = JSON.parse(await(await fetch('./style.json')).text());
+const STYLE = JSON.parse(await (await fetch('./style.json')).text());
 
-// TODO: Update slug values to match the real HackMD documents you maintain.
-const ARTICLES = [
-    {
-        id: 'privacy',
-        label: '隱私權政策',
-        languages: [
-            { code: 'zh_TC', label: '繁體中文' },
-            { code: 'en_US', label: 'English' },
-        ],
-    },
-    {
-        id: 'terms',
-        label: '服務條款',
-        languages: [
-            { code: 'zh_TC', label: '繁體中文' },
-            { code: 'en_US', label: 'English' },
-        ],
-    },
-];
+async function fetchHackmdJSON(url) {
+    const parser = new DOMParser();
+    const res = await fetch('/api/proxy?url=' + encodeURIComponent(url));
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    const text = await res.text();
+    const htmlDoc = parser.parseFromString(text, 'text/html');
+    const publishNode = htmlDoc.querySelector('#publish-page');
+    if (!publishNode) throw new Error('無法解析 HackMD 內容');
+    const content = publishNode.innerText;
+    return content.match(/```[\s\S]*?\n([\s\S]*?)```/)?.[1];
+}
+
+const LANGUAGES = {
+    'zh_TC' : '繁體中文',
+    'en_US' : 'English',
+    'zh_CN' : '简体中文'
+};
+// const ARTICLES = JSON.parse(await fetchHackmdJSON("https://hackmd.io/@staryuehtech/article-tree"));
+const ARTICLES = {
+    "agreement": "用戶協議",
+    "regulatory-authorization": "監管許可"
+};
+// const ARTICLES = [
+//     {
+//         id: 'privacy',
+//         label: '隱私權政策',
+//         languages: [
+//             { code: 'zh_TC', label: '繁體中文' },
+//             { code: 'en_US', label: 'English' },
+//         ],
+//     },
+//     {
+//         id: 'terms',
+//         label: '服務條款',
+//         languages: [
+//             { code: 'zh_TC', label: '繁體中文' },
+//             { code: 'en_US', label: 'English' },
+//         ],
+//     },
+// ];
 
 const articleSelect = document.getElementById('article-select');
 const languageSelect = document.getElementById('language-select');
 const themeSelect = document.getElementById('theme-select');
 const articleContainer = document.getElementById('article-content');
+const articleBody = document.getElementById('article-body');
+const copyButton = document.getElementById('copy-article-btn');
 
 let preferences = loadPreferences();
 
@@ -69,7 +92,7 @@ function updatePreferences(partial) {
 
 function populateArticleOptions(selectedId) {
     articleSelect.innerHTML = '';
-    ARTICLES.forEach(({ id, label }) => {
+    Object.entries(ARTICLES).forEach(([id, label]) => {
         const option = document.createElement('option');
         option.value = id;
         option.textContent = label;
@@ -78,9 +101,9 @@ function populateArticleOptions(selectedId) {
     });
 }
 
-function populateLanguageOptions(article, selectedLanguageCode) {
+function populateLanguageOptions(selectedLanguageCode) {
     languageSelect.innerHTML = '';
-    article.languages.forEach(({ code, label }) => {
+    Object.entries(LANGUAGES).forEach(([code, label]) => {
         const option = document.createElement('option');
         option.value = code;
         option.textContent = label;
@@ -89,20 +112,25 @@ function populateLanguageOptions(article, selectedLanguageCode) {
     });
 }
 
-function applyStyle(html) {
+function setInlineStyle(el, property, value) {
+    if (!el || !property) return;
+    if (property.includes('-')) {
+        el.style.setProperty(property, value);
+    } else {
+        el.style[property] = value;
+    }
+}
+
+function applyStyle(dom) {
     Object.keys(STYLE).forEach((tag) => {
         const style = STYLE[tag];
-        html.querySelectorAll(tag).forEach((el) => {
+        dom.parentNode.querySelectorAll(tag).forEach((el) => {
             Object.entries(style).forEach(([key, value]) => {
-                el.style[key] = value;
+                setInlineStyle(el, key, value);
             });
         });
     });
-    return html;
-}
-
-function applyBackground(container) {
-    container.style = '';
+    return dom;
 }
 
 function applyTheme(theme) {
@@ -111,50 +139,74 @@ function applyTheme(theme) {
     themeSelect.value = resolved;
 }
 
-function getArticleConfig(id) {
-    return ARTICLES.find((article) => article.id === id);
-}
-
-function getLanguageConfig(article, code) {
-    return article.languages.find((language) => language.code === code);
-}
-
 async function loadArticle(articleId, languageCode) {
-    const articleConfig = getArticleConfig(articleId);
-    if (!articleConfig) throw new Error('未知的文章');
-    const languageConfig = getLanguageConfig(articleConfig, languageCode) || articleConfig.languages[0];
-
-    // Show loading feedback to the authoring team.
-    articleContainer.innerHTML = '<p class="placeholder">載入中...</p>';
+    if (articleBody) {
+        copyButton.style.opacity = 0;
+        articleBody.innerHTML = '<p class="placeholder">載入中...</p>';
+    }
 
     try {
         const parser = new DOMParser();
-        // const md = await fetchHackmdMarkdown(slug);
-        const md = await fetchLocalMarkdown();
+        const md = await fetchHackmdMarkdown(`${articleId}-cms-${languageCode}`);
+        // const md = await fetchLocalMarkdown();
         const html = marked.parse(md);
         const dom = parser.parseFromString(html, 'text/html');
-        const styledHTML = applyStyle(dom);
-        const container = document.createElement('div');
-        applyBackground(container);
-        container.innerHTML = styledHTML.body.innerHTML;
-        articleContainer.innerHTML = '';
-        articleContainer.appendChild(container);
+        if (articleBody) {
+            articleBody.innerHTML = dom.body.innerHTML;
+            const styledArticleBody = applyStyle(articleBody);
+            copyButton.style.opacity = 1;
+        }
     } catch (err) {
+        copyButton.style.opacity = 0;
         console.error(err);
-        articleContainer.innerHTML = `<p class="error">載入失敗：${err.message}</p>`;
+        if (articleBody) {
+            articleBody.innerHTML = `<p class="error">載入失敗：${err.message}</p>`;
+        }
+    }
+}
+
+async function copyArticleHtml() {
+    if (!articleBody || !copyButton) return;
+    const html = articleBody.outerHTML;
+    if (!html) return;
+
+    try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(html);
+        } else {
+            const textarea = document.createElement('textarea');
+            textarea.value = html;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+        }
+
+        copyButton.dataset.state = 'copied';
+        setTimeout(() => {
+            copyButton.dataset.state = 'idle';
+        }, 1600);
+    } catch (error) {
+        console.error('複製失敗', error);
+        copyButton.dataset.state = 'error';
+        setTimeout(() => {
+            copyButton.dataset.state = 'idle';
+        }, 1600);
     }
 }
 
 (function init() {
-    const initialArticle = getArticleConfig(preferences.articleId) ? preferences.articleId : ARTICLES[0].id;
-    const initialArticleConfig = getArticleConfig(initialArticle);
-    const initialLanguage = getLanguageConfig(initialArticleConfig, preferences.languageCode)
-        ? preferences.languageCode
-        : initialArticleConfig.languages[0].code;
+    const initialArticle = preferences.articleId || Object.keys(ARTICLES);
+    const initialLanguage = preferences.languageCode || LANGUAGES[0];
     const initialTheme = preferences.theme || DEFAULT_THEME;
+    let languageCode = initialLanguage;
+
 
     populateArticleOptions(initialArticle);
-    populateLanguageOptions(initialArticleConfig, initialLanguage);
+    populateLanguageOptions(initialLanguage);
     applyTheme(initialTheme);
 
     updatePreferences({
@@ -167,17 +219,15 @@ async function loadArticle(articleId, languageCode) {
 
     articleSelect.addEventListener('change', () => {
         const articleId = articleSelect.value;
-        const article = getArticleConfig(articleId);
+        const article = ARTICLES[articleId];
         if (!article) return;
-        const languageCode = article.languages[0].code;
-        populateLanguageOptions(article, languageCode);
         updatePreferences({ articleId, languageCode });
         loadArticle(articleId, languageCode);
     });
 
     languageSelect.addEventListener('change', () => {
         const articleId = articleSelect.value;
-        const languageCode = languageSelect.value;
+        languageCode = languageSelect.value;
         updatePreferences({ articleId, languageCode });
         loadArticle(articleId, languageCode);
     });
@@ -187,4 +237,8 @@ async function loadArticle(articleId, languageCode) {
         applyTheme(theme);
         updatePreferences({ theme });
     });
+
+    if (copyButton) {
+        copyButton.addEventListener('click', copyArticleHtml);
+    }
 })();

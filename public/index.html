@@ -34,7 +34,24 @@
             /*background: url('x.jpg');*/
             background-size: 130% auto;
             background-position: top center;
-        "></article>
+        ">
+            <button id="copy-article-btn" type="button" title="複製文章內容" data-state="idle">
+                <span class="sr-only">複製文章內容</span>
+                <svg class="icon icon-copy" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M8 7V5.6C8 4.72 8 4.28 8.218 3.918a1.1 1.1 0 0 1 .464-.4C8.976 3 9.398 3 10.24 3h7.52c.842 0 1.264 0 1.558.118.2.082.366.215.464.4.218.362.218.802.218 1.682V14.4c0 .88 0 1.32-.218 1.682a1.1 1.1 0 0 1-.464.4c-.294.118-.716.118-1.558.118H16m-7.76 5h7.52c.842 0 1.264 0 1.558-.118.2-.082.366-.215.464-.4.218-.362.218-.802.218-1.682V7.6c0-.88 0-1.32-.218-1.682a1.1 1.1 0 0 0-.464-.4C17.004 5.4 16.582 5.4 15.74 5.4H8.22c-.842 0-1.264 0-1.558.118a1.1 1.1 0 0 0-.464.4C6 6.28 6 6.72 6 7.6V17.4c0 .88 0 1.32.218 1.682.098.185.264.318.464.4.294.118.716.118 1.558.118Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <svg class="icon icon-success" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M9 12.5 11.4 15l4.6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+                <svg class="icon icon-error" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M12 7v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    <circle cx="12" cy="16.5" r="1" fill="currentColor"/>
+                </svg>
+            </button>
+            <div id="article-body"></div>
+        </article>
     </main>
 </body>
 </html>

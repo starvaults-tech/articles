@@ -6,6 +6,7 @@
     --muted-color: #6b7280;
     --surface-color: #fff;
     --border-color: #e5e7eb;
+    --text-2: #000;
 }
 
 :root[data-theme="dark"] {
@@ -16,6 +17,7 @@
     --muted-color: #9ca3af;
     --surface-color: rgb(17,17,17);
     --border-color: #374151;
+    --text-2: #fff;
 }
 
 *,
@@ -81,11 +83,85 @@ main {
 }
 
 #article-content {
-    background-color: var(--surface-color);
+    /*background-color: var(--surface-color);*/
     border: 1px solid var(--border-color);
     border-radius: 0.75rem;
-    padding: 2rem;
+    padding: 0;
     box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+    position: relative;
+    overflow: hidden;
+}
+
+#copy-article-btn {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    background: rgba(15, 23, 42, 0.75);
+    color: #f9fafb;
+    border: 1px solid rgba(148, 163, 184, 0.45);
+    border-radius: 999px;
+    padding: 0.4rem 0.75rem 0.45rem;
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.25);
+}
+
+#copy-article-btn svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    display: none;
+}
+
+#copy-article-btn[data-state="idle"] .icon-copy {
+    display: block;
+}
+
+#copy-article-btn[data-state="copied"] {
+    background: rgba(34, 197, 94, 0.95);
+    border-color: rgba(34, 197, 94, 0.6);
+    box-shadow: 0 16px 32px rgba(34, 197, 94, 0.35);
+}
+
+#copy-article-btn[data-state="copied"] .icon-success {
+    display: block;
+}
+
+#copy-article-btn[data-state="error"] {
+    background: rgba(239, 68, 68, 0.95);
+    border-color: rgba(239, 68, 68, 0.6);
+    box-shadow: 0 16px 32px rgba(239, 68, 68, 0.35);
+}
+
+#copy-article-btn[data-state="error"] .icon-error {
+    display: block;
+}
+
+#copy-article-btn[data-state="idle"]:hover {
+    transform: translateY(-1px);
+    background: rgba(37, 99, 235, 0.92);
+    border-color: rgba(37, 99, 235, 0.6);
+    box-shadow: 0 16px 32px rgba(37, 99, 235, 0.35);
+}
+
+#copy-article-btn:active {
+    transform: translateY(0);
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
 
 .placeholder,
